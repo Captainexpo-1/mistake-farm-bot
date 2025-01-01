@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-from events import handlers
-from utils import cprint, ColorType
+from src.events import handlers
+from .utils import cprint, ColorType
 load_dotenv()
 
 app = Flask(__name__)

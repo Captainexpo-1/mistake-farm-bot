@@ -1,7 +1,7 @@
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from flask import Response
-from utils import cprint, ColorType
+from ..utils import cprint, ColorType
 import os, random
 
 
