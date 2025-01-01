@@ -35,9 +35,10 @@ def slack_events():
     return Response("OK", status=200)
 
 if __name__ == '__main__':
-    if os.environ.get('FLASK_ENV') == 'development':
-        app.debug = True
+    #if os.environ.get('FLASK_ENV') == 'development':
+    #    app.debug = True
         
     port = os.environ.get('PORT', 5000)
+    print(f"Starting server on port {port}")
     app.run(port=port)
             
