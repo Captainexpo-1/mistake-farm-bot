@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-from src.events import handlers
+from src.events.handlers import handlers
 from .utils import cprint, ColorType
 load_dotenv()
 
