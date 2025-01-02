@@ -85,7 +85,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 )   
             else:
                 client.chat_postMessage(
-                    channel=m[0],
+                    channel=m,
                     text=msg
                 )
             return resp_200()
