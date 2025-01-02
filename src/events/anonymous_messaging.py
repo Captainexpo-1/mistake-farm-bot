@@ -11,7 +11,7 @@ replies_allowed: dict[int, str] = {}
 
 timeout = {}
 
-RATELIMIT = 120 # 2 minutes
+RATELIMIT = 60 # 1 minute
 
 def check_ratelimits():
     keys = list(timeout.keys())
@@ -61,18 +61,18 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
     hashed_user = hashlib.sha256(user.encode()).hexdigest()
     
     
-    if user == os.environ["CHANNEL_MANAGER_ID"]:
-        s = text.split(":")
+    if user == os.environ["CHANNEL_MANAGER_ID"] and text.startswith("REPLY:"):
+        s = text.split(":")[1:]
         if len(s) != 2:
             client.chat_postMessage(
                 channel=user,
-                text="Unable to parse message, format = <ID>:<Message>"
+                text="Unable to parse message, format = REPLY:<ID>:<Message>"
             )
             return
         id = s[0].strip()
         msg = s[1].strip()
     
-        if (m:=replies_allowed.get(id) != None):
+        if (m:=replies_allowed.get(id)) != None:
             if msg.lower() in ["n", "no"]:
                 replies_allowed.pop(id)
                 client.chat_postMessage(
@@ -91,6 +91,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 text="Cannot find ID."
             )
             return
+        return
     
     if hashed_user in timeout:
         client.chat_postMessage(
