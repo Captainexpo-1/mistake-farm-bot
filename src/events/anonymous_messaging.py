@@ -65,7 +65,6 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
     
     if user == os.environ["CHANNEL_MANAGER_ID"] and text[0] == "$":
         s = text[1:].split(":")
-        print("REPLY:",s)
         if len(s) != 2:
             client.chat_postMessage(
                 channel=os.environ["CHANNEL_MANAGER_ID"],
@@ -97,7 +96,6 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 channel=os.environ["CHANNEL_MANAGER_ID"],
                 text="Cannot find ID."
             )
-            print(replies_allowed)
             return resp_200()
     
     if hashed_user in timeout:
