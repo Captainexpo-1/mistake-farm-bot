@@ -63,11 +63,13 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
     hashed_user = hashlib.sha256(user.encode()).hexdigest()
     
     
-    if user == os.environ["CHANNEL_MANAGER_ID"] and text.startswith("REPLY:"):
+    if user == os.environ["CHANNEL_MANAGER_ID"] and text.lower().startswith("reply:"):
         s = text.split(":")[1:]
+        print("REPLY:",s)
         if len(s) != 2:
+            cprint(f"UNABLE TO PARSE: {text}", DebugColor.YELLOW)
             client.chat_postMessage(
-                channel=user,
+                channel=os.environ["CHANNEL_MANAGER_ID"],
                 text="Unable to parse message, format = REPLY:<ID>:<Message>"
             )
             return resp_200()
@@ -78,18 +80,19 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
             if msg.lower() in ["n", "no"]:
                 replies_allowed.pop(id)
                 client.chat_postMessage(
-                    channel=user,
+                    channel=os.environ["CHANNEL_MANAGER_ID"],
                     text="Denied!"
                 )   
-                return resp_200()
-            client.chat_postMessage(
-                channel=m[0],
-                text=msg
-            )
+            else:
+                client.chat_postMessage(
+                    channel=m[0],
+                    text=msg
+                )
             return resp_200()
         else:
+            cprint(f"ID NOT FOUND: {id}", DebugColor.YELLOW)
             client.chat_postMessage(
-                channel=user,
+                channel=os.environ["CHANNEL_MANAGER_ID"],
                 text="Cannot find ID."
             )
             return resp_200()
