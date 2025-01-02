@@ -75,7 +75,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
         id = int(s[0].strip())
         msg = s[1].strip()
     
-        if (m:=replies_allowed.get(id)) != None:
+        if (reply_channel:=replies_allowed.get(id)) != None:
             if msg.lower() in ["n", "no"]:
                 replies_allowed.pop(id)
                 client.chat_postMessage(
@@ -84,8 +84,8 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 )   
             else:
                 client.chat_postMessage(
-                    channel=f"Reply: {m}",
-                    text=msg
+                    channel=reply_channel,
+                    text=f"Reply: {msg}"
                 )
                 client.chat_postMessage(
                     channel=os.environ["CHANNEL_MANAGER_ID"],
