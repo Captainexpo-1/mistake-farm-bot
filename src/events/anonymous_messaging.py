@@ -18,6 +18,15 @@ def check_ratelimits():
             sent.pop(k)
 
 def on_user_dm_event(client: WebClient, event: dict) -> Response:
+    
+    if os.environ["ALLOW_ANONYMOUS_MESSAGING"] == "false":
+        client.chat_postMessage(
+            channel=event["user"],
+            text="Anonymous messaging is disabled."
+        )
+        awaiting_confirmation = {}
+        return Response("OK", status=200)
+    
     user = event["user"]
     text = event["text"]    
     hashed_user = hashlib.sha256(user.encode()).hexdigest()
