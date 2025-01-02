@@ -13,6 +13,8 @@ timeout = {}
 
 RATELIMIT = 60 # 1 minute
 
+def resp_200(): return Response("OK", status=200) 
+
 def check_ratelimits():
     keys = list(timeout.keys())
     for key in keys:
@@ -22,7 +24,7 @@ def check_ratelimits():
             timeout.pop(key)
 
 def send_message(client, user, hashed_user, t, allow_rep=False):
-    p=time.process_time_ns()
+    p=str(time.process_time_ns())
     if allow_rep:
         client.chat_postMessage(
             channel=user,
@@ -68,7 +70,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 channel=user,
                 text="Unable to parse message, format = REPLY:<ID>:<Message>"
             )
-            return
+            return resp_200()
         id = s[0].strip()
         msg = s[1].strip()
     
@@ -79,19 +81,19 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                     channel=user,
                     text="Denied!"
                 )   
-                return
+                return resp_200()
             client.chat_postMessage(
                 channel=m[0],
                 text=msg
             )
-            return
+            return resp_200()
         else:
             client.chat_postMessage(
                 channel=user,
                 text="Cannot find ID."
             )
-            return
-        return
+            return resp_200()
+        return resp_200()
     
     if hashed_user in timeout:
         client.chat_postMessage(
