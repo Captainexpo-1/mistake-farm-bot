@@ -67,7 +67,6 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
         s = text.split(":")[1:]
         print("REPLY:",s)
         if len(s) != 2:
-            cprint(f"UNABLE TO PARSE: {text}", DebugColor.YELLOW)
             client.chat_postMessage(
                 channel=os.environ["CHANNEL_MANAGER_ID"],
                 text="Unable to parse message, format = REPLY:<ID>:<Message>"
@@ -85,12 +84,15 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 )   
             else:
                 client.chat_postMessage(
-                    channel=m,
+                    channel=f"Reply: {m}",
                     text=msg
+                )
+                client.chat_postMessage(
+                    channel=os.environ["CHANNEL_MANAGER_ID"],
+                    text="Reply succesful!"
                 )
             return resp_200()
         else:
-            cprint(f"ID NOT FOUND: {id}", DebugColor.YELLOW)
             client.chat_postMessage(
                 channel=os.environ["CHANNEL_MANAGER_ID"],
                 text="Cannot find ID."
