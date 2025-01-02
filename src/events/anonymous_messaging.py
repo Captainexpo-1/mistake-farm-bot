@@ -64,7 +64,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
     
     
     if user == os.environ["CHANNEL_MANAGER_ID"] and text[0] == "$":
-        s = text.split(":")[1:]
+        s = text[1:].split(":")
         print("REPLY:",s)
         if len(s) != 2:
             client.chat_postMessage(
