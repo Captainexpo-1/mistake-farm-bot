@@ -17,16 +17,14 @@ def check_ratelimits():
         if time.time() - v > RATELIMIT:
             sent.pop(k)
 
-def on_user_dm_event(client: WebClient, event: dict) -> Response:
-    
-    global awaiting_confirmation
-    
+def on_user_dm_event(client: WebClient, event: dict) -> Response:    
     if os.environ["ALLOW_ANONYMOUS_MESSAGING"] == "false":
         client.chat_postMessage(
             channel=event["user"],
             text="Anonymous messaging is disabled."
         )
-        awaiting_confirmation = {}
+        global awaiting_confirmation
+        awaiting_confirmation.clear()
         return Response("OK", status=200)
     
     user = event["user"]
