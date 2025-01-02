@@ -32,7 +32,7 @@ def send_message(client, user, hashed_user, t, allow_rep=False):
         
     client.chat_postMessage(
         channel=os.environ["CHANNEL_MANAGER_ID"],
-        text=f"Anonymous message: {t}"
+        text=f"Anonymous message: {t[0]}"
     )
     if allow_rep:
         client.chat_postMessage(
@@ -115,6 +115,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                     channel=user,
                     text="Do you want to allow replies? (y/n)"
                 )
+                awaiting_confirmation[hashed_user] = (t[0], 2)
         elif t[1] == 2:
             send_message(client, user, hashed_user, t, allow_rep=confirmed)
                 
