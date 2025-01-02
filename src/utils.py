@@ -1,4 +1,4 @@
-class ColorType:
+class DebugColor:
     RED = 31
     GREEN = 32
     YELLOW = 33
@@ -9,5 +9,5 @@ class ColorType:
 def cprint(text: str, color: int) -> None:
     print(f"\033[{color}m{text}\033[0m")
     
-def cprint(text: str, color: ColorType) -> None:
+def cprint(text: str, color: DebugColor) -> None:
     print(f"\033[{color}m{text}\033[0m")

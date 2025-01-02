@@ -4,10 +4,12 @@ import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from src.events.handlers import handlers
-from .utils import cprint, ColorType
+from src.utils import cprint, DebugColor
 load_dotenv()
 
 app = Flask(__name__)
+
+in_dev = os.environ.get("FLASK_ENV") == "development"
 
 slack_token = os.environ["BOT_OAUTH_TOKEN"]
 client = WebClient(token=slack_token)
@@ -16,7 +18,8 @@ client = WebClient(token=slack_token)
 def slack_events():
     data = request.json
     
-    if data.get("event"): print(data.get("event"))
+    if data.get("event") and in_dev: 
+        print(data.get("event"))
     
     if "challenge" in data:
         return Response(data["challenge"], mimetype="text/plain")
@@ -28,9 +31,10 @@ def slack_events():
                 return handler(client, data["event"])
             except SlackApiError as e:
                 assert e.response["error"]
-                cprint(f"An error occurred: {e.response['error']}", ColorType.RED)
+                cprint(f"An error occurred: {e.response['error']}", DebugColor.RED)
                 return Response(f"An error occurred: {e.response['error']}", status=400)
         else:
+            cprint(f"Event not supported: {data['event']['type']}", DebugColor.YELLOW)
             return Response("Event not supported", status=400)
     return Response("OK", status=200)
 

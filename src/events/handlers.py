@@ -1,7 +1,8 @@
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from flask import Response
-from ..utils import cprint, ColorType
+from src.utils import cprint, DebugColor
+from src.events.anonymous_messaging import on_user_dm_event
 import os, random
 
 
@@ -30,13 +31,17 @@ get_random_adjective = lambda: random.choice([
 ])
 
 def on_message_event(client: WebClient, event: dict) -> Response:
+    if "bot_profile" in event: return Response("OK", status=200)
     
-    if event.get("channel") != os.environ["ACTIVE_CHANNEL_ID"]:
+    channel = event.get("channel")
+    
+    if channel != os.environ["ACTIVE_CHANNEL_ID"]:
+        if channel.startswith("D"): 
+            return on_user_dm_event(client, event)
         return Response("OK", status=200)
     
     if "subtype" in event: return Response("OK", status=200)
-    if "bot_profile" in event: return Response("OK", status=200)
-    
+
     if "farm" in event.get("text"): 
         ts = event["ts"]
         client.reactions_add(
@@ -46,8 +51,7 @@ def on_message_event(client: WebClient, event: dict) -> Response:
         )
         
     return Response("OK", status=200)
-        
-        
+
 def on_member_joined_channel_event(client: WebClient, event: dict) -> Response:
     response = client.chat_postMessage(
         channel=event["channel"],
@@ -74,5 +78,5 @@ def on_member_joined_channel_event(client: WebClient, event: dict) -> Response:
 
 handlers = {
     "message": on_message_event,
-    "member_joined_channel": on_member_joined_channel_event
+    "member_joined_channel": on_member_joined_channel_event,
 }
