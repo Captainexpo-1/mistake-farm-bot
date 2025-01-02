@@ -11,3 +11,8 @@ def cprint(text: str, color: int) -> None:
     
 def cprint(text: str, color: DebugColor) -> None:
     print(f"\033[{color}m{text}\033[0m")
+    
+def remove_prefix_ignore_case(text: str, prefix: str) -> str:
+    if text.lower().startswith(prefix.lower()):
+        return text[len(prefix):]
+    return text

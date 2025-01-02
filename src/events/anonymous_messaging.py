@@ -1,7 +1,7 @@
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from flask import Response
-from src.utils import cprint, DebugColor
+from src.utils import cprint, DebugColor, remove_prefix_ignore_case
 import os, random
 import hashlib
 import time
@@ -23,7 +23,7 @@ def check_ratelimits():
         if time.time() - timeout[key] > RATELIMIT:
             timeout.pop(key)
 
-def send_message(client, user, hashed_user, t, allow_rep=False):
+def send_message(client, user, hashed_user, text, allow_rep=False):
     p=time.process_time_ns()
     if allow_rep:
         client.chat_postMessage(
@@ -34,7 +34,7 @@ def send_message(client, user, hashed_user, t, allow_rep=False):
         
     client.chat_postMessage(
         channel=os.environ["CHANNEL_MANAGER_ID"],
-        text=f"Anonymous message: {t[0]}"
+        text=f"Anonymous message: {text}"
     )
     if allow_rep:
         client.chat_postMessage(
@@ -54,7 +54,7 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
             channel=event["user"],
             text="Anonymous messaging is disabled."
         )
-        return Response("OK", status=200)
+        return resp_200()
     
     check_ratelimits()
     
@@ -103,32 +103,28 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
             channel=user,
             text=f"Please wait {RATELIMIT - (time.time() - timeout[hashed_user]):.2f} seconds before sending another message."
         )
-        return Response("OK", status=200)
+        return resp_200()
     
-    if (t:=awaiting_confirmation.get(hashed_user)) != None:
+    text: str = ""
+    if (text := awaiting_confirmation.get(hashed_user)) != None:
         confirmed = text.lower() in ["y", "yes"]
-        if t[1] == 1:
-            if not confirmed:
-                client.chat_postMessage(
-                    channel=user,
-                    text="Aborting!"
-                )
-                awaiting_confirmation.pop(hashed_user)
-                return Response("OK", status=200)
-            else:
-                client.chat_postMessage(
-                    channel=user,
-                    text="Do you want to allow replies? (y/n)"
-                )
-                awaiting_confirmation[hashed_user] = (t[0], 2)
-        elif t[1] == 2:
-            send_message(client, user, hashed_user, t, allow_rep=confirmed)
-                
+        if not confirmed:
+            client.chat_postMessage(
+                channel=user,
+                text="Aborting!"
+            )
+            awaiting_confirmation.pop(hashed_user)
+            return resp_200()
         
+        can_reply = text.lower().strip().startswith("(allow reply)")
+        if can_reply:
+            text = remove_prefix_ignore_case(text, "(allow reply)").strip()
+            
+        send_message(client, user, hashed_user, text, allow_rep=can_reply)  
     else:
         client.chat_postMessage(
             channel=user,
             text="Are you sure you want to send this? (y/n)"
         )
-        awaiting_confirmation[hashed_user] = (text, 1)    
-    return Response("OK", status=200)   
+        awaiting_confirmation[hashed_user] = text    
+    return resp_200()   
