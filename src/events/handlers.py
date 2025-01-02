@@ -9,7 +9,8 @@ import os, random
 get_random_verb = lambda: random.choice([
     "skedaddle", 
     "run", 
-    "hurry"
+    "hurry",
+    "shuffle",
 ])
 
 get_random_farm_reaction = lambda: random.choice([
@@ -28,6 +29,7 @@ get_random_adjective = lambda: random.choice([
     "silly", 
     "fantastic", 
     "interesting",
+    "mediocre",
 ])
 
 def on_message_event(client: WebClient, event: dict) -> Response:
@@ -68,9 +70,8 @@ def on_member_joined_channel_event(client: WebClient, event: dict) -> Response:
         thread_ts=ts,
         text=f"In the meantime, why did you decide to join this {get_random_adjective()} channel?"
     )
-    convo = client.conversations_open(users=[os.environ["CHANNEL_MANAGER_ID"]])
     response = client.chat_postMessage(
-        channel=convo["channel"]["id"],
+        channel=os.environ["CHANNEL_MANAGER_ID"],
         text=f"Hey there! <@{os.environ['CHANNEL_MANAGER_ID']}>, <@{event['user']}> just joined!"
     )
     
