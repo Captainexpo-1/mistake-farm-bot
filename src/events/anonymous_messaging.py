@@ -63,13 +63,13 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
     hashed_user = hashlib.sha256(user.encode()).hexdigest()
     
     
-    if user == os.environ["CHANNEL_MANAGER_ID"] and text.lower().startswith("reply:"):
+    if user == os.environ["CHANNEL_MANAGER_ID"] and text[0] == "$":
         s = text.split(":")[1:]
         print("REPLY:",s)
         if len(s) != 2:
             client.chat_postMessage(
                 channel=os.environ["CHANNEL_MANAGER_ID"],
-                text="Unable to parse message, format = REPLY:<ID>:<Message>"
+                text="Unable to parse message, reply format = $<ID>:<Message>"
             )
             return resp_200()
         id = s[0].strip()
@@ -98,7 +98,6 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                 text="Cannot find ID."
             )
             return resp_200()
-        return resp_200()
     
     if hashed_user in timeout:
         client.chat_postMessage(
