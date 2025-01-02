@@ -13,9 +13,12 @@ sent = {}
 RATELIMIT = 120 # 2 minutes
 
 def check_ratelimits():
-    for k, v in sent.items():
-        if time.time() - v > RATELIMIT:
-            sent.pop(k)
+    keys = list(sent.keys())
+    for key in keys:
+        if key not in sent:
+            continue
+        if time.time() - sent[key] > RATELIMIT:
+            sent.pop(key)
 
 def on_user_dm_event(client: WebClient, event: dict) -> Response:    
     if os.environ["ALLOW_ANONYMOUS_MESSAGING"] == "false":
@@ -23,8 +26,6 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
             channel=event["user"],
             text="Anonymous messaging is disabled."
         )
-        global awaiting_confirmation
-        awaiting_confirmation.clear()
         return Response("OK", status=200)
     
     user = event["user"]
