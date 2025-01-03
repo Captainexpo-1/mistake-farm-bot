@@ -90,6 +90,8 @@ def on_user_dm_event(client: WebClient, event: dict) -> Response:
                     channel=os.environ["CHANNEL_MANAGER_ID"],
                     text="Reply succesful!"
                 )
+                replies_allowed.pop(id)
+            
             return resp_200()
         else:
             client.chat_postMessage(
